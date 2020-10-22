@@ -14,7 +14,7 @@ int main() {
 	BST *tree = new BST();
 	for (int i = 0; i < 7; i++) {
 		cout << arr[i]<<", ";
-		//tree->insert(arr[i]);
+		tree->insert(arr[i]);
 	}
 	cout << endl;
 	tree->printTreePre();

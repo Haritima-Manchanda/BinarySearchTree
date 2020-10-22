@@ -71,3 +71,88 @@ void BST::clearTree(TNode *tmp) {
 	}
 }
 
+bool BST::insert(string s){
+
+	if(root == NULL){
+		TNode *newNode = new TNode(s);
+		root = newNode;
+		setHeight(newNode);
+		return true;
+	}
+
+	else{
+		TNode *n = root;
+
+		while(n != NULL){
+
+			if(s < n->data){
+				if(n->left == NULL){
+					TNode *newNode = new TNode(s);
+					newNode->parent = n;
+					n->left = newNode;
+					setHeight(newNode);
+					return true;
+				}
+				else{
+					n = n->left;
+				}
+			}
+			else if(s > n->data){
+				if(n->right == NULL){
+					TNode *newNode = new TNode(s);
+					newNode->parent = n;
+					n->right = newNode;
+					setHeight(newNode);
+					return true;
+				}
+				else{
+					n = n->right;
+				}
+			}
+			else{
+				return false;
+			}
+		}
+	}
+
+	return false;
+}
+
+void BST::printTreeIO(TNode *n){
+	// In-order Traversal: left, parent, right
+
+	if(n == NULL){
+		return;
+	}
+	else{
+		printTreeIO(n->left);
+		n->printNode();
+		printTreeIO(n->right);
+	}
+}
+
+void BST::printTreePre(TNode *n){
+	// Pre-order Traversal: parent, left, right
+
+	if(n == NULL){
+		return;
+	}
+	else{
+		n->printNode();
+		printTreePre(n->left);
+		printTreePre(n->right);
+	}
+}
+
+void BST::printTreePost(TNode *n){
+	//Post-order Traversal: left, right, parent
+
+	if(n == NULL){
+		return;
+	}
+	else{
+		printTreePost(n->left);
+		printTreePost(n->right);
+		n->printNode();
+	}
+}
