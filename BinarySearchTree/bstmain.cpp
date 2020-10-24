@@ -26,7 +26,7 @@ int main() {
 	for (int i = 0; i < 13; i++) {
 		cout << arr3[i]<<", ";
 		tree->insert(arr3[i]);
-	}
+	}/*
 	cout << endl;
 	tree->printTreePre();
 	tree->printTreeIO();
@@ -51,7 +51,7 @@ int main() {
 	tree->printTreePre();
 	tree->printTreeIO();
 	tree->printTreePost();
-	tree->clearTree();
+	tree->clearTree(); */
 	return 0;
 }
 

@@ -85,7 +85,7 @@ bool BST::insert(string s){
 
 		while(n != NULL){
 
-			if(s < n->data){
+			if(s < n->data->phrase){
 				if(n->left == NULL){
 					TNode *newNode = new TNode(s);
 					newNode->parent = n;
@@ -97,7 +97,7 @@ bool BST::insert(string s){
 					n = n->left;
 				}
 			}
-			else if(s > n->data){
+			else if(s > n->data->phrase){
 				if(n->right == NULL){
 					TNode *newNode = new TNode(s);
 					newNode->parent = n;
@@ -109,13 +109,35 @@ bool BST::insert(string s){
 					n = n->right;
 				}
 			}
-			else{
-				return false;
-			}
 		}
 	}
 
 	return false;
+}
+
+TNode* BST::find(string s){
+
+	if(root == NULL){
+		return NULL;
+	}
+
+	else{
+		TNode *n = root;
+
+		while(n != NULL){
+			if(s == n->data->phrase){
+				return n;
+			}
+			else if(s > n->data->phrase){
+				n = n->right;
+			}
+			else if(s < n->data->phrase){
+				n = n->left;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 void BST::printTreeIO(TNode *n){
@@ -156,3 +178,5 @@ void BST::printTreePost(TNode *n){
 		n->printNode();
 	}
 }
+
+
