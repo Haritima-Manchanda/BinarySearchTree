@@ -80,38 +80,37 @@ bool BST::insert(string s){
 		return true;
 	}
 
-	else{
-		TNode *n = root;
+	TNode *n = root;
 
-		while(n != NULL){
+	while(n != NULL){
 
-			if(s < n->data->phrase){
-				if(n->left == NULL){
-					TNode *newNode = new TNode(s);
-					newNode->parent = n;
-					n->left = newNode;
-					setHeight(newNode);
-					return true;
-				}
-				else{
-					n = n->left;
-				}
+		if(s < n->data->phrase){
+			if(n->left == NULL){
+				TNode *newNode = new TNode(s);
+				newNode->parent = n;
+				n->left = newNode;
+				setHeight(newNode);
+				return true;
 			}
-			else if(s > n->data->phrase){
-				if(n->right == NULL){
-					TNode *newNode = new TNode(s);
-					newNode->parent = n;
-					n->right = newNode;
-					setHeight(newNode);
-					return true;
-				}
-				else{
-					n = n->right;
-				}
+			n = n->left;
+		}
+
+		else if(s > n->data->phrase){
+			if(n->right == NULL){
+				TNode *newNode = new TNode(s);
+				newNode->parent = n;
+				n->right = newNode;
+				setHeight(newNode);
+				return true;
 			}
+			n = n->right;
+		}
+
+		else if(s == n->data->phrase){
+			// phrase already in the tree.
+			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -141,6 +140,7 @@ TNode* BST::find(string s){
 }
 
 void BST::printTreeIO(TNode *n){
+
 	// In-order Traversal: left, parent, right
 
 	if(n == NULL){
@@ -154,6 +154,7 @@ void BST::printTreeIO(TNode *n){
 }
 
 void BST::printTreePre(TNode *n){
+
 	// Pre-order Traversal: parent, left, right
 
 	if(n == NULL){
@@ -167,6 +168,7 @@ void BST::printTreePre(TNode *n){
 }
 
 void BST::printTreePost(TNode *n){
+
 	//Post-order Traversal: left, right, parent
 
 	if(n == NULL){
@@ -179,4 +181,158 @@ void BST::printTreePost(TNode *n){
 	}
 }
 
+TNode* BST::remove(string s){
 
+	if(root == NULL){
+		return NULL;
+	}
+
+	else{
+		TNode *n = root;
+		TNode *deletedNode = NULL;
+
+		while(n != NULL){
+			if(s == n->data->phrase){ //data to be removed is found
+
+				// 3 Cases: Node to be removed has 0, 1 or 2 children
+
+				// Case 1: No child
+				if(n->left == NULL && n->right == NULL){
+					deletedNode = removeNoKids(n);
+					return deletedNode;
+				}
+
+				// Case 2: 1 child
+				else if(n->left == NULL && n->right != NULL){
+					// It has a right child
+					deletedNode = removeOneKid(n, false);
+					return deletedNode;
+				}
+				else if(n->left != NULL && n->right == NULL){
+					// It has a left child
+					deletedNode = removeOneKid(n, true);
+					return deletedNode;
+				}
+				// Case 3: It has 2 children
+				else if(n->left != NULL && n->right != NULL){
+
+					TNode *temp = rightMostLeftTree(n->left); // Helper function to find the rightmost of the left sub-tree.
+					n->data->phrase = temp->data->phrase;	// replaces the node's phrase (to be removed node) with temp's phrase
+					if(temp->left == NULL && temp->right == NULL){
+						removeNoKids(temp);
+					}
+					else if(temp->left == NULL && temp->right != NULL){
+						// It has a right child
+						removeOneKid(temp, false);
+					}
+					else if(temp->left != NULL && temp->right == NULL){
+						// It has a left child
+						removeOneKid(temp, true);
+					}
+				}
+			}
+			else if(s > n->data->phrase){
+				n = n->right;
+			}
+			else{
+				n = n->left;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+
+TNode* BST::removeNoKids(TNode *tmp){
+
+	// setting the parent's left or right field to NULL, depending on where tmp is present (left or right)
+	// wrt parent.
+
+	if(tmp->parent->left == tmp){
+		tmp->parent->left = NULL;
+		tmp->parent = NULL;
+	}
+	else{
+		tmp->parent->right = NULL;
+		tmp->parent = NULL;
+	}
+
+	return tmp;
+}
+
+TNode* BST::removeOneKid(TNode *tmp, bool leftFlag){
+
+	cout<<"Entered removeOneKid"<<endl;
+	if(leftFlag){
+		tmp->left->parent = tmp->parent;	// Changing what the parent node of tmp->left points to.
+		if(tmp->parent->left == tmp){		// Changing what the parent node of tmp points to.
+			tmp->parent->left = tmp->left;
+		}
+		else{
+			tmp->parent->right = tmp->left;
+		}
+	}
+
+	if(!leftFlag){
+		tmp->right->parent = tmp->parent;	// Changing what the parent node of tmp->right points to.
+		if(tmp->parent->left == tmp){		// Changing what the parent node of tmp points to.
+			tmp->parent->left = tmp->right;
+		}
+		else{
+			tmp->parent->right = tmp->right;
+		}
+	}
+
+	return tmp;
+}
+
+TNode* BST::rightMostLeftTree(TNode* temp){
+
+	// This functions finds the rightmost node of the left sub-tree
+
+	while(temp->right != NULL){
+		temp = temp->right;
+	}
+
+	return temp;
+}
+
+void BST::setHeight(TNode* n){
+
+	// sets height when a node is inserted
+	if(n == root){
+		n->height = 1;
+		return;
+	}
+
+	n->height = 1;
+	TNode* tmp = n->parent;
+	int updatedHeight = 0;
+	int max = 0;
+
+	while(n != root){
+		if(tmp->left == NULL && tmp->right != NULL){
+			max = tmp->right->height;
+		}
+		else if(tmp->right == NULL && tmp->left != NULL){
+			max = tmp->left->height;
+		}
+		else if(tmp->left->height >= tmp->right->height){
+			max = tmp->left->height;
+		}
+		else if(tmp->right->height > tmp->left->height){
+			max = tmp->right->height;
+		}
+		updatedHeight = max + 1;
+
+		if(tmp->height != updatedHeight){
+			tmp->height = updatedHeight;
+			n = n->parent;
+			tmp = tmp->parent;
+		}
+		else{
+			return;
+		}
+	}
+}
