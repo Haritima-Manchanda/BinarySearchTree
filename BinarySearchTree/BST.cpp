@@ -213,11 +213,13 @@ TNode* BST::remove(string s){
 					deletedNode = removeOneKid(n, true);
 					return deletedNode;
 				}
+
 				// Case 3: It has 2 children
 				else if(n->left != NULL && n->right != NULL){
 
-					TNode *temp = rightMostLeftTree(n->left); // Helper function to find the rightmost of the left sub-tree.
-					n->data->phrase = temp->data->phrase;	// replaces the node's phrase (to be removed node) with temp's phrase
+					TNode *temp = rightMostLeftTree(n->left);	// Helper function to find the rightmost of the left sub-tree.
+					n->data->phrase = temp->data->phrase;		// Replaces the node's phrase (to be removed node) with temp's phrase
+
 					if(temp->left == NULL && temp->right == NULL){
 						removeNoKids(temp);
 					}
@@ -246,15 +248,16 @@ TNode* BST::remove(string s){
 
 TNode* BST::removeNoKids(TNode *tmp){
 
-	// setting the parent's left or right field to NULL, depending on where tmp is present (left or right)
-	// wrt parent.
+	// setting the parent's left or right field to NULL, depending on where tmp is present (left or right).
 
 	if(tmp->parent->left == tmp){
 		tmp->parent->left = NULL;
+		updateHeightRemoveNoKids(tmp->parent);
 		tmp->parent = NULL;
 	}
 	else{
 		tmp->parent->right = NULL;
+		updateHeightRemoveNoKids(tmp->parent);
 		tmp->parent = NULL;
 	}
 
@@ -263,9 +266,9 @@ TNode* BST::removeNoKids(TNode *tmp){
 
 TNode* BST::removeOneKid(TNode *tmp, bool leftFlag){
 
-	cout<<"Entered removeOneKid"<<endl;
 	if(leftFlag){
 		tmp->left->parent = tmp->parent;	// Changing what the parent node of tmp->left points to.
+
 		if(tmp->parent->left == tmp){		// Changing what the parent node of tmp points to.
 			tmp->parent->left = tmp->left;
 		}
@@ -276,6 +279,7 @@ TNode* BST::removeOneKid(TNode *tmp, bool leftFlag){
 
 	if(!leftFlag){
 		tmp->right->parent = tmp->parent;	// Changing what the parent node of tmp->right points to.
+
 		if(tmp->parent->left == tmp){		// Changing what the parent node of tmp points to.
 			tmp->parent->left = tmp->right;
 		}
@@ -283,6 +287,9 @@ TNode* BST::removeOneKid(TNode *tmp, bool leftFlag){
 			tmp->parent->right = tmp->right;
 		}
 	}
+
+	updateHeightRemoveOneKid(tmp->parent);
+	tmp->left = tmp->right = tmp->parent = NULL;
 
 	return tmp;
 }
@@ -335,4 +342,64 @@ void BST::setHeight(TNode* n){
 			return;
 		}
 	}
+}
+
+void BST::updateHeightRemoveNoKids(TNode *temp){
+
+	// Helper function that updates the height of a node (with no children), when it was removed.
+	int updatedHeight = 0;
+	int max = 0;
+
+	while(temp != root){
+		if(temp->left == NULL && temp->right == NULL){
+			temp->height = 1;
+			updatedHeight = 1;
+		}
+		else if(temp->left == NULL && temp->right != NULL){
+			max = temp->right->height;
+			updatedHeight = max + 1;
+		}
+		else if(temp->left != NULL && temp->right == NULL){
+			max = temp->left->height;
+			updatedHeight = max + 1;
+		}
+
+		if(temp->height != updatedHeight){
+			temp->height = updatedHeight;
+			temp = temp->parent;
+		}
+		else{
+			return;
+		}
+	}
+}
+
+void BST::updateHeightRemoveOneKid(TNode* n){
+		int updatedHeight = 0;
+		int max = 0;
+
+		while(n != NULL){
+			if(n->left == NULL && n->right != NULL){
+				max = n->right->height;
+			}
+			else if(n->right == NULL && n->left != NULL){
+				max = n->left->height;
+			}
+			else if(n->left->height >= n->right->height){
+				max = n->left->height;
+			}
+			else if(n->right->height > n->left->height){
+				max = n->right->height;
+			}
+
+			updatedHeight = max + 1;
+
+			if(n->height != updatedHeight){
+				n->height = updatedHeight;
+				n = n->parent;
+			}
+			else{
+				return;
+			}
+		}
 }

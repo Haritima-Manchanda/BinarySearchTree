@@ -33,6 +33,9 @@ public:
 
 	// Helper function to find the rightmost of the left sub-tree
 	TNode* rightMostLeftTree(TNode* temp);
+
+	void updateHeightRemoveNoKids(TNode* temp);
+	void updateHeightRemoveOneKid(TNode* temp);
 };
 
 
